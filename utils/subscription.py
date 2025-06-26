@@ -21,5 +21,5 @@ async def check_user_subscriptions(bot: Bot, user_id: int):
 def get_subscription_links():
     # Return a single folder link for all channels
     folder_text = "Add this folder to your Telegram to subscribe to all required channels."
-    folder_url = "https://t.me/addlist/LJ_cpy1x5CM5YzZi"
+    folder_url = "https://t.me/addlist/LNkPhdj11KJkOTcy"
     return folder_text, folder_url 

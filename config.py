@@ -14,6 +14,7 @@ CHANNEL_IDS = {
     -1001717798983: "Parviz's path | SAT 1600",
     -1001825051597: "Abdulazizziy",
     -1001835327505: "Bobirjon's Thoughts",
+    -1001836999066: "Ibragim Mansurov", 
     # Add more as needed
 }
 PRIVATE_GROUP_ID = -1002830897570  # Updated to your channel ID 

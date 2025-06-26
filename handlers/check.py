@@ -35,7 +35,7 @@ async def check_subscription(update: Update, context: ContextTypes.DEFAULT_TYPE)
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
     else:
-        msg = '❌ You have not yet subscribed to the following channels (11 total):\n\n'
+        msg = '❌ You have not yet subscribed to the following channels (12 total):\n\n'
         for channel_id in unsubscribed:
             name = CHANNEL_IDS.get(channel_id, 'Unknown channel')
             msg += f'• {name}\n'

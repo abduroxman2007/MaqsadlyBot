@@ -41,7 +41,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             keyboard = [[InlineKeyboardButton("Add Folder", url=folder_url)]]
             keyboard.append([InlineKeyboardButton('Check', callback_data='check_subscription')])
             await update.message.reply_text(
-                f"Add this folder to your Telegram to subscribe to all required channels. (11 channels)\n\nAfter adding, press 'Check' to verify your subscription.",
+                f"Add this folder to your Telegram to subscribe to all required channels. (12 channels)\n\nAfter adding, press 'Check' to verify your subscription.",
                 reply_markup=InlineKeyboardMarkup(keyboard)
             )
 

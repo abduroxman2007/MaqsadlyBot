@@ -159,27 +159,48 @@ async def broadcast_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return BROADCAST_TEXT
 
 async def broadcast_receive(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.user_data['broadcast_txt'] = update.message.text
+    # Store the full message object and message_id for later use
+    context.user_data['broadcast_message'] = update.message
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("✅ Confirm", callback_data='bconfirm')],
         [InlineKeyboardButton("❌ Cancel", callback_data='bcancel')],
     ])
-    await update.message.reply_text(
-        "Here's the message you typed:\n\n" + update.message.text,
-        reply_markup=keyboard
-    )
+    # Show a preview depending on the message type
+    preview_text = "Here's the message you typed. It will be sent as-is to all users."
+    await update.message.reply_text(preview_text, reply_markup=keyboard)
     return BROADCAST_CONFIRM
 
 async def broadcast_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     if query.data == 'bconfirm':
-        text = context.user_data.get('broadcast_txt', '')
+        orig_message = context.user_data.get('broadcast_message')
         users = await get_all_users()
         sent = failed = 0
         for u in users:
             try:
-                await context.bot.send_message(chat_id=int(u['user_id']), text=text)
+                # If the message is a reply, broadcast the replied-to message
+                msg_to_send = orig_message.reply_to_message if orig_message.reply_to_message else orig_message
+                # Send according to message type
+                if msg_to_send.text and not msg_to_send.photo and not msg_to_send.document and not msg_to_send.video:
+                    await context.bot.send_message(chat_id=int(u['user_id']), text=msg_to_send.text)
+                elif msg_to_send.photo:
+                    await context.bot.send_photo(chat_id=int(u['user_id']), photo=msg_to_send.photo[-1].file_id, caption=msg_to_send.caption or "")
+                elif msg_to_send.document:
+                    await context.bot.send_document(chat_id=int(u['user_id']), document=msg_to_send.document.file_id, caption=msg_to_send.caption or "")
+                elif msg_to_send.video:
+                    await context.bot.send_video(chat_id=int(u['user_id']), video=msg_to_send.video.file_id, caption=msg_to_send.caption or "")
+                elif msg_to_send.audio:
+                    await context.bot.send_audio(chat_id=int(u['user_id']), audio=msg_to_send.audio.file_id, caption=msg_to_send.caption or "")
+                elif msg_to_send.voice:
+                    await context.bot.send_voice(chat_id=int(u['user_id']), voice=msg_to_send.voice.file_id, caption=msg_to_send.caption or "")
+                elif msg_to_send.sticker:
+                    await context.bot.send_sticker(chat_id=int(u['user_id']), sticker=msg_to_send.sticker.file_id)
+                elif msg_to_send.animation:
+                    await context.bot.send_animation(chat_id=int(u['user_id']), animation=msg_to_send.animation.file_id, caption=msg_to_send.caption or "")
+                else:
+                    # fallback: try to copy the message
+                    await context.bot.copy_message(chat_id=int(u['user_id']), from_chat_id=orig_message.chat_id, message_id=msg_to_send.message_id)
                 sent += 1
                 await asyncio.sleep(0.05)
             except Exception as e:
@@ -193,7 +214,7 @@ async def broadcast_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE):
 broadcast_conv = ConversationHandler(
     entry_points=[CommandHandler('broadcast', broadcast_start)],
     states={
-        BROADCAST_TEXT: [MessageHandler(filters.TEXT & ~filters.COMMAND, broadcast_receive)],
+        BROADCAST_TEXT: [MessageHandler(filters.ALL & ~filters.COMMAND, broadcast_receive)],
         BROADCAST_CONFIRM: [CallbackQueryHandler(broadcast_confirm, pattern='^b')]
     },
     fallbacks=[]

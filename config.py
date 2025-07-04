@@ -12,7 +12,6 @@ CHANNEL_IDS = {
     -1002245418335: "Jamshidbek Izzatulloh | Blog",
     -1001548867673: "levsha",
     -1001717798983: "Parviz's path | SAT 1600",
-    -1001825051597: "Abdulazizziy",
     -1001835327505: "Bobirjon's Thoughts",
     -1001836999066: "Ibragim Mansurov", 
     # Add more as needed
